@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | Campus Cleanliness Monitoring System{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h2 mb-1">Admin Dashboard</h1>
+        <p class="text-muted mb-0">Current complaint overview for the cleanliness monitoring system.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ url_for('report_complaint') }}" class="btn btn-primary">Register New Complaint</a>
+        <a href="{{ url_for('manage_complaints') }}" class="btn btn-outline-primary">Manage Complaints</a>
+    </div>
+</div>
+
+<section class="row g-4 mb-4">
+    <div class="col-md-6 col-xl">
+        <div class="stats-card h-100">
+            <span class="stats-label">Total Complaints</span>
+            <h2 class="display-6 fw-bold mb-0">{{ stats.total }}</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl">
+        <div class="stats-card h-100">
+            <span class="stats-label">Pending Complaints</span>
+            <h2 class="display-6 fw-bold mb-0">{{ stats.pending }}</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl">
+        <div class="stats-card h-100">
+            <span class="stats-label">Assigned</span>
+            <h2 class="display-6 fw-bold mb-0">{{ stats.assigned }}</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl">
+        <div class="stats-card h-100">
+            <span class="stats-label">In Progress</span>
+            <h2 class="display-6 fw-bold mb-0">{{ stats.in_progress }}</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl">
+        <div class="stats-card h-100">
+            <span class="stats-label">Resolved</span>
+            <h2 class="display-6 fw-bold mb-0">{{ stats.resolved }}</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl">
+        <div class="stats-card h-100">
+            <span class="stats-label">Closed</span>
+            <h2 class="display-6 fw-bold mb-0">{{ stats.closed }}</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl">
+        <div class="stats-card h-100">
+            <span class="stats-label">High Priority</span>
+            <h2 class="display-6 fw-bold mb-0">{{ stats.high_priority }}</h2>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="dashboard-card h-100 p-4">
+            <span class="stats-label">Today's Cleaning Tasks</span>
+            <h2 class="display-6 fw-bold mb-2">{{ reminders.todays_tasks|length }}</h2>
+            <p class="small text-muted mb-0">Scheduled for {{ reminders.today_label }}.</p>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="dashboard-card h-100 p-4">
+            <span class="stats-label">Pending Complaints</span>
+            <h2 class="display-6 fw-bold mb-2">{{ reminders.pending_complaints|length }}</h2>
+            <p class="small text-muted mb-0">Waiting to be assigned or reviewed.</p>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="dashboard-card h-100 p-4">
+            <span class="stats-label">High Priority Open</span>
+            <h2 class="display-6 fw-bold mb-2">{{ reminders.high_priority|length }}</h2>
+            <p class="small text-muted mb-0">Urgent items still active.</p>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="dashboard-card h-100 p-4">
+            <span class="stats-label">Overdue Complaints</span>
+            <h2 class="display-6 fw-bold mb-2">{{ reminders.overdue|length }}</h2>
+            <p class="small text-muted mb-0">Open longer than 2 days.</p>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 mb-0">Status Distribution</h2>
+                    <span class="text-muted small">Pie Chart</span>
+                </div>
+                <canvas id="statusChart" height="240"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 mb-0">Complaints by Priority</h2>
+                    <span class="text-muted small">Bar Chart</span>
+                </div>
+                <canvas id="priorityChart" height="240"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 mb-0">Today's Cleaning Tasks</h2>
+                    <a href="{{ url_for('manage_schedules') }}" class="btn btn-sm btn-outline-primary">Manage</a>
+                </div>
+                {% if reminders.todays_tasks %}
+                    <div class="list-group list-group-flush">
+                        {% for task in reminders.todays_tasks %}
+                            <div class="list-group-item px-0">
+                                <div class="fw-semibold">{{ task["area"] }} - {{ task["building"] }}</div>
+                                <div class="small text-muted">{{ task["cleaning_type"] }} cleaning assigned to {{ task["assigned_staff"] }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No cleaning tasks scheduled for today.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 mb-0">Attention Needed</h2>
+                    <a href="{{ url_for('manage_complaints', status='Pending') }}" class="btn btn-sm btn-outline-primary">Open List</a>
+                </div>
+                <div class="attention-stack">
+                    <div>
+                        <div class="fw-semibold mb-2">Pending Complaints</div>
+                        {% if reminders.pending_complaints %}
+                            {% for complaint in reminders.pending_complaints %}
+                                <div class="small mb-2">{{ complaint["complaint_id"] }} - {{ complaint["building"] }}, {{ complaint["location"] }}</div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="small text-muted">No pending complaints.</div>
+                        {% endif %}
+                    </div>
+                    <div class="mt-3">
+                        <div class="fw-semibold mb-2">Overdue Complaints</div>
+                        {% if reminders.overdue %}
+                            {% for complaint in reminders.overdue %}
+                                <div class="small mb-2">{{ complaint["complaint_id"] }} - {{ complaint["status"] }} at {{ complaint["building"] }}</div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="small text-muted">No overdue complaints.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="d-flex justify-content-between align-items-center p-4 pb-0">
+            <div>
+                <h2 class="h5 mb-1">Recent Complaints</h2>
+                <p class="text-muted mb-0">Latest 10 submitted complaints</p>
+            </div>
+            <a href="{{ url_for('manage_complaints') }}" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Department</th>
+                        <th>Role</th>
+                        <th>Building</th>
+                        <th>Location</th>
+                        <th>Issue</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if complaints %}
+                        {% for complaint in complaints %}
+                            <tr>
+                                <td class="fw-semibold">{{ complaint["complaint_id"] }}</td>
+                                <td>{{ complaint["department"] }}</td>
+                                <td>{{ complaint["role"] }}</td>
+                                <td>{{ complaint["building"] }}</td>
+                                <td>{{ complaint["location"] }}</td>
+                                <td>{{ complaint["issue_category"] }}</td>
+                                <td>{{ complaint["priority"] }}</td>
+                                <td><span class="badge status-badge status-{{ complaint['status']|lower|replace(' ', '-') }}">{{ complaint["status"] }}</span></td>
+                                <td>{{ complaint["created_at"] }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">No complaints have been submitted yet.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    window.dashboardChartData = {{ chart_data|tojson }};
+</script>
+{% endblock %}

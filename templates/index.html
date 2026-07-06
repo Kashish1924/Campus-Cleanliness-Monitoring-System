@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Campus Cleanliness Monitoring System{% endblock %}
+
+{% block content %}
+<section class="hero-section rounded-4 p-4 p-md-5 mb-5">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+            <span class="badge rounded-pill text-bg-light mb-3">Complete Mini Project</span>
+            <h1 class="display-6 fw-bold mb-3">Track complaints, manage cleaning schedules, and present reports from one system.</h1>
+            <p class="lead mb-4">The Campus Cleanliness Monitoring System combines reporting, tracking, dashboards, schedules, and printable reports in one responsive Flask application.</p>
+            <div class="d-flex flex-wrap gap-3">
+                <a href="{{ url_for('report_complaint') }}" class="btn btn-primary btn-lg">Report Complaint</a>
+                <a href="{{ url_for('track_complaint') }}" class="btn btn-outline-light btn-lg">Track Complaint</a>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-light btn-lg">Admin Dashboard</a>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="info-card h-100">
+                <h2 class="h4 mb-3">What you can do</h2>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h3 class="h6">Submit complaints</h3>
+                        <p class="mb-0">Capture location, issue category, priority, description, and optional photo evidence.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3 class="h6">Track status</h3>
+                        <p class="mb-0">Use the generated complaint ID to check the latest status and response details.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3 class="h6">Manage schedules and reports</h3>
+                        <p class="mb-0">Plan daily cleaning work, review reminder cards, and generate exports for project presentation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4">
+    <div class="col-md-4">
+        <div class="quick-card h-100">
+            <h2 class="h5">Report an Issue</h2>
+            <p class="text-muted">Log campus cleanliness problems with accurate location details and priority.</p>
+            <a href="{{ url_for('report_complaint') }}" class="btn btn-sm btn-outline-primary">Open Form</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="quick-card h-100">
+            <h2 class="h5">Track a Complaint</h2>
+            <p class="text-muted">Find the current status of a complaint using the unique complaint ID.</p>
+            <a href="{{ url_for('track_complaint') }}" class="btn btn-sm btn-outline-primary">Track Now</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="quick-card h-100">
+            <h2 class="h5">View Dashboard</h2>
+            <p class="text-muted">See complaints, reminder cards, charts, and quick operational summaries.</p>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-sm btn-outline-primary">Open Dashboard</a>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4 mt-1">
+    <div class="col-md-6">
+        <div class="quick-card h-100">
+            <h2 class="h5">Cleaning Schedules</h2>
+            <p class="text-muted">Create daily, weekly, and monthly cleaning plans with assigned staff and remarks.</p>
+            <a href="{{ url_for('manage_schedules') }}" class="btn btn-sm btn-outline-primary">Open Schedules</a>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="quick-card h-100">
+            <h2 class="h5">Reports</h2>
+            <p class="text-muted">Generate daily, weekly, and monthly summaries with CSV export and print view.</p>
+            <a href="{{ url_for('reports') }}" class="btn btn-sm btn-outline-primary">View Reports</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

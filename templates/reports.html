@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Reports | Campus Cleanliness Monitoring System{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="h2 mb-1">Reports System</h1>
+        <p class="text-muted mb-0">Generate daily, weekly, and monthly complaint summaries.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ url_for('export_report_csv', type=report.report_type) }}" class="btn btn-outline-primary">Export CSV</a>
+        <a href="{{ url_for('print_report', type=report.report_type) }}" class="btn btn-primary" target="_blank" rel="noopener">Printable View</a>
+    </div>
+</div>
+
+<section class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Report Type</label>
+                <select class="form-select" name="type">
+                    {% for item in report_type_options %}
+                        <option value="{{ item }}" {% if report.report_type == item %}selected{% endif %}>{{ item.capitalize() }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <div class="report-period-label">
+                    <span class="stats-label">Coverage Period</span>
+                    <div class="fw-semibold">{{ report.start_display }} to {{ report.end_display }}</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary">Generate Report</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="row g-4 mb-4">
+    <div class="col-md-4 col-xl-2">
+        <div class="stats-card h-100">
+            <span class="stats-label">Total</span>
+            <h2 class="display-6 fw-bold mb-0">{{ report.total_complaints }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="stats-card h-100">
+            <span class="stats-label">Resolved</span>
+            <h2 class="display-6 fw-bold mb-0">{{ report.resolved }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="stats-card h-100">
+            <span class="stats-label">Pending</span>
+            <h2 class="display-6 fw-bold mb-0">{{ report.pending }}</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stats-card h-100">
+            <span class="stats-label">Average Resolution Time</span>
+            <h2 class="h4 fw-bold mb-0">{{ report.average_resolution_time }}</h2>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stats-card h-100">
+            <span class="stats-label">Most Reported Area</span>
+            <h2 class="h4 fw-bold mb-0">{{ report.most_reported_area }}</h2>
+            <div class="small text-muted mt-2">Most Common Issue: {{ report.most_common_issue }}</div>
+        </div>
+    </div>
+</section>
+
+<section class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="d-flex justify-content-between align-items-center p-4 pb-0">
+            <div>
+                <h2 class="h5 mb-1">{{ report.label }} Report Details</h2>
+                <p class="text-muted mb-0">Complaint records included in the selected report period.</p>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Area</th>
+                        <th>Issue</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned Staff</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if report.complaints %}
+                        {% for complaint in report.complaints %}
+                            <tr>
+                                <td class="fw-semibold">{{ complaint["complaint_id"] }}</td>
+                                <td>{{ complaint["building"] }} / {{ complaint["area_type"] }}</td>
+                                <td>{{ complaint["issue_category"] }}</td>
+                                <td>{{ complaint["priority"] }}</td>
+                                <td><span class="badge status-badge status-{{ complaint['status']|lower|replace(' ', '-') }}">{{ complaint["status"] }}</span></td>
+                                <td>{{ complaint["assigned_staff"] or "Not assigned" }}</td>
+                                <td>{{ complaint["created_at"] }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">No complaints found for this report period.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

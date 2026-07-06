@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Track Complaint | Campus Cleanliness Monitoring System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <h1 class="h3 mb-3">Track Complaint</h1>
+                <p class="text-muted mb-4">Enter your complaint ID to view the latest status, assigned staff, remarks, and timestamps.</p>
+                <form method="post" class="row g-3 align-items-end" id="trackComplaintForm" data-lookup-url="{{ url_for('complaint_lookup_api', complaint_id='COMPLAINT_ID_PLACEHOLDER') }}">
+                    <div class="col-md-8">
+                        <label for="complaint_id" class="form-label">Complaint ID</label>
+                        <input type="text" class="form-control text-uppercase" id="complaint_id" name="complaint_id" value="{{ complaint_id }}" placeholder="Enter complaint ID" required>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary w-100">Check Status</button>
+                    </div>
+                </form>
+                <div id="trackComplaintInlineMessage" class="mt-3"></div>
+            </div>
+        </div>
+
+        <div id="complaintDetailsContainer">
+            {% if complaint %}
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                            <div>
+                                <h2 class="h4 mb-1">Complaint Details</h2>
+                                <p class="text-muted mb-0">Complaint ID: <strong>{{ complaint["complaint_id"] }}</strong></p>
+                            </div>
+                            <span class="badge status-badge status-{{ complaint['status']|lower|replace(' ', '-') }}">{{ complaint["status"] }}</span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6"><strong>Department:</strong> {{ complaint["department"] }}</div>
+                            <div class="col-md-6"><strong>Role:</strong> {{ complaint["role"] }}</div>
+                            <div class="col-md-6"><strong>Building:</strong> {{ complaint["building"] }}</div>
+                            <div class="col-md-6"><strong>Floor:</strong> {{ complaint["floor"] }}</div>
+                            <div class="col-md-6"><strong>Location:</strong> {{ complaint["location"] }}</div>
+                            <div class="col-md-6"><strong>Area Type:</strong> {{ complaint["area_type"] }}</div>
+                            <div class="col-md-6"><strong>Issue Category:</strong> {{ complaint["issue_category"] }}</div>
+                            <div class="col-md-6"><strong>Priority:</strong> {{ complaint["priority"] }}</div>
+                            <div class="col-12"><strong>Description:</strong> {{ complaint["description"] }}</div>
+                            <div class="col-md-6"><strong>Assigned Staff:</strong> {{ complaint["assigned_staff"] or "Not assigned yet" }}</div>
+                            <div class="col-md-6"><strong>Remarks:</strong> {{ complaint["remarks"] or "No remarks available" }}</div>
+                            <div class="col-md-6"><strong>Created At:</strong> {{ complaint["created_at"] }}</div>
+                            <div class="col-md-6"><strong>Updated At:</strong> {{ complaint["updated_at"] }}</div>
+                            {% if complaint["image"] %}
+                                <div class="col-12">
+                                    <strong>Uploaded Image:</strong>
+                                    <div class="mt-3">
+                                        <img src="{{ url_for('static', filename='uploads/' ~ complaint['image']) }}" alt="Complaint Image" class="img-fluid complaint-image rounded-3 border">
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

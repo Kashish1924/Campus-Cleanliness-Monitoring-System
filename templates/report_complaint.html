@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Report Complaint | Campus Cleanliness Monitoring System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-xl-10">
+        <div class="page-header mb-4">
+            <h1 class="h2 mb-2">Complaint Registration</h1>
+            <p class="text-muted mb-0">Fill in the complaint details below. Fields marked with <span class="text-danger">*</span> are required.</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="card form-card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <h2 class="section-title">Personal Information</h2>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="reporter_name" class="form-label">Reporter Name</label>
+                        <input type="text" class="form-control" id="reporter_name" name="reporter_name" value="{{ form_data.reporter_name }}" maxlength="100">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="department" class="form-label">Department <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="department" name="department" value="{{ form_data.department }}" maxlength="100" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="">Select role</option>
+                            {% for role in role_options %}
+                                <option value="{{ role }}" {% if form_data.role == role %}selected{% endif %}>{{ role }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-12 pt-2">
+                        <h2 class="section-title">Location Details</h2>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="building" class="form-label">Building <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="building" name="building" value="{{ form_data.building }}" maxlength="100" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="floor" class="form-label">Floor <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="floor" name="floor" value="{{ form_data.floor }}" maxlength="50" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="location" class="form-label">Exact Location <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="location" name="location" value="{{ form_data.location }}" maxlength="150" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="area_type" class="form-label">Area Type <span class="text-danger">*</span></label>
+                        <select class="form-select" id="area_type" name="area_type" required>
+                            <option value="">Select area type</option>
+                            {% for area in area_type_options %}
+                                <option value="{{ area }}" {% if form_data.area_type == area %}selected{% endif %}>{{ area }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-12 pt-2">
+                        <h2 class="section-title">Issue Details</h2>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="issue_category" class="form-label">Issue Category <span class="text-danger">*</span></label>
+                        <select class="form-select" id="issue_category" name="issue_category" required>
+                            <option value="">Select issue category</option>
+                            {% for issue in issue_category_options %}
+                                <option value="{{ issue }}" {% if form_data.issue_category == issue %}selected{% endif %}>{{ issue }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="priority" class="form-label">Priority <span class="text-danger">*</span></label>
+                        <select class="form-select" id="priority" name="priority" required>
+                            <option value="">Select priority</option>
+                            {% for priority in priority_options %}
+                                <option value="{{ priority }}" {% if form_data.priority == priority %}selected{% endif %}>{{ priority }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="description" name="description" rows="5" minlength="10" maxlength="1000" required>{{ form_data.description }}</textarea>
+                        <div class="form-text">Add enough detail to help the maintenance team locate and understand the issue.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="image" class="form-label">Image Upload</label>
+                        <input type="file" class="form-control" id="image" name="image" accept=".png,.jpg,.jpeg,.gif,.webp">
+                        <div class="form-text">Optional. Maximum file size: 5 MB.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-0 px-4 px-md-5 pb-4">
+                <div class="d-flex flex-wrap gap-3">
+                    <button type="submit" class="btn btn-primary px-4">Submit Complaint</button>
+                    <a href="{{ url_for('track_complaint') }}" class="btn btn-outline-secondary">Track Existing Complaint</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
