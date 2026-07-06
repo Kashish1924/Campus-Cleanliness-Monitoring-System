@@ -157,6 +157,22 @@
                         {% endif %}
                     </div>
                     <div class="mt-3">
+                        <div class="fw-semibold mb-2">High Priority Complaints</div>
+                        {% if reminders.high_priority %}
+                            {% for complaint in reminders.high_priority %}
+                                <div class="small mb-2">
+                                    <strong>{{ complaint["complaint_id"] }}</strong>
+                                    - {{ complaint["location"] }}
+                                    - {{ complaint["issue_category"] }}
+                                    - {{ complaint["priority"] }}
+                                    - {{ complaint["status"] }}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="small text-muted">No active high-priority complaints.</div>
+                        {% endif %}
+                    </div>
+                    <div class="mt-3">
                         <div class="fw-semibold mb-2">Overdue Complaints</div>
                         {% if reminders.overdue %}
                             {% for complaint in reminders.overdue %}

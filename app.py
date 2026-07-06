@@ -98,6 +98,11 @@ def init_db():
         )
         """
     )
+    complaint_columns = {
+        row[1] for row in db.execute("PRAGMA table_info(complaints)").fetchall()
+    }
+    if "resolved_at" not in complaint_columns:
+        db.execute("ALTER TABLE complaints ADD COLUMN resolved_at TEXT")
     db.execute(
         """
         CREATE TABLE IF NOT EXISTS cleaning_schedules (
@@ -295,6 +300,7 @@ def serialize_complaint(complaint):
         "remarks": complaint["remarks"],
         "created_at": complaint["created_at"],
         "updated_at": complaint["updated_at"],
+        "resolved_at": complaint["resolved_at"],
         "image_url": image_url,
     }
 
@@ -476,11 +482,10 @@ def fetch_dashboard_reminders():
     ).fetchall()
     high_priority = db.execute(
         f"""
-        SELECT complaint_id, status, building, location, created_at
+        SELECT complaint_id, status, building, location, issue_category, priority, created_at
         FROM complaints
         WHERE priority = 'High' AND status IN ({status_placeholders})
         ORDER BY datetime(created_at) ASC
-        LIMIT 5
         """,
         ACTIVE_COMPLAINT_STATUSES,
     ).fetchall()
@@ -528,10 +533,10 @@ def calculate_average_resolution_time(rows):
     for row in rows:
         try:
             created_at = datetime.strptime(row["created_at"], DATE_FORMAT)
-            updated_at = datetime.strptime(row["updated_at"], DATE_FORMAT)
+            resolved_at = datetime.strptime(row["resolved_at"], DATE_FORMAT)
         except ValueError:
             continue
-        duration = updated_at - created_at
+        duration = resolved_at - created_at
         if duration.total_seconds() >= 0:
             durations.append(duration.total_seconds())
 
@@ -557,7 +562,10 @@ def build_report_summary(report_type):
     ).fetchall()
 
     total = len(complaints)
-    resolved_rows = [row for row in complaints if row["status"] in RESOLVED_STATUSES]
+    resolved_rows = [
+        row for row in complaints
+        if row["status"] in RESOLVED_STATUSES and row["resolved_at"]
+    ]
     pending_rows = [row for row in complaints if row["status"] in ACTIVE_COMPLAINT_STATUSES]
 
     most_reported_area_row = db.execute(
@@ -697,9 +705,9 @@ def report_complaint():
             INSERT INTO complaints (
                 complaint_id, reporter_name, department, role, building, floor,
                 location, area_type, issue_category, priority, description,
-                image, status, assigned_staff, remarks, created_at, updated_at
+                image, status, assigned_staff, remarks, created_at, updated_at, resolved_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 complaint_id,
@@ -719,6 +727,7 @@ def report_complaint():
                 None,
                 timestamp,
                 timestamp,
+                None,
             ),
         )
         db.commit()
@@ -838,18 +847,23 @@ def update_complaint(complaint_id):
             flash(error, "danger")
         return redirect(url_for("manage_complaints", **request.args))
 
+    resolved_at = complaint["resolved_at"]
+    if complaint["status"] != "Resolved" and update_data["status"] == "Resolved":
+        resolved_at = datetime.now().strftime(DATE_FORMAT)
+
     db = get_db()
     db.execute(
         """
         UPDATE complaints
-        SET status = ?, assigned_staff = ?, remarks = ?, updated_at = ?
+        SET status = ?, assigned_staff = ?, remarks = ?, updated_at = ?, resolved_at = ?
         WHERE complaint_id = ?
         """,
         (
             update_data["status"],
             update_data["assigned_staff"] or None,
             update_data["remarks"] or None,
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            datetime.now().strftime(DATE_FORMAT),
+            resolved_at,
             complaint["complaint_id"],
         ),
     )
